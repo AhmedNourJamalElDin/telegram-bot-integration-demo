@@ -8,8 +8,9 @@ This demo mainly provides 4 components:
 
 ![Interact With The Bot](demo-images/interact-with-the-bot.png)
 
-After clicking the **INTERACT** button, a new tab will open which will open telegram app. and the user must click the **
-/start** message at this point, otherwise this demo won't work.
+After clicking the **INTERACT** button, a new tab will open which will open telegram app.
+and the user must click the ** /start ** message at this point,
+otherwise this demo won't work.
 
 After that, the user may click **INTERACTED** button where the app can fetch the updates from telegram bot api, and link
 the chat with the current user.
