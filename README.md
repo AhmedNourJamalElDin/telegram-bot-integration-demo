@@ -4,9 +4,11 @@
 
 Imagine you have an e-commerce app, and some users requests to receive the receipts via Telegram.
 
-But, of course, it is bad to do that manually and you want to automate the process, so you want to make integration with Telegram Bot API. However, there are some limitations in the Telegram Bot API 
+But, of course, it is bad to do that manually and you want to automate the process, so you want to make integration with
+Telegram Bot API. However, there are some limitations in the Telegram Bot API
 
-1. Telegram Bot API does not allow you to send messages to anyone directly otherwise the users will be spammed by random bots. so that your users must interact with the bots in order for them to receive messages from you via your bot.
+1. Telegram Bot API does not allow you to send messages to anyone directly otherwise the users will be spammed by random
+   bots. so that your users must interact with the bots in order for them to receive messages from you via your bot.
 
 2. If the interaction is done, you can not easily know who is this user and how they will be linked together.
 
@@ -18,9 +20,8 @@ This demo mainly provides 4 components:
 
 ![Interact With The Bot](demo-images/interact-with-the-bot.png)
 
-After clicking the **INTERACT** button, a new tab will open which will open telegram app.
-and the user must click the **/start** message at this point,
-otherwise this demo won't work.
+After clicking the **INTERACT** button, a new tab will open which will open telegram app. and the user must click the **
+/start** message at this point, otherwise this demo won't work.
 
 After that, the user may click **INTERACTED** button where the app can fetch the updates from telegram bot api, and link
 the chat with the current user.
@@ -31,6 +32,15 @@ Telegram bot api provides a webhook out of the box which sends the messages to t
 demo.
 
 We just use it to link the chats with the users and no more!
+
+#### Add Chat
+
+![Add Chat](demo-images/add-chat.png)
+
+You can add a chat to your linked chat by specifying your telegram username then interact with the bot manually.
+
+P.S. you should send the bot the /start message as the messages are filtered and only /start message work in this demo,
+however, any message works if you remove the filters in the code.
 
 #### Linked Chats
 
@@ -54,16 +64,18 @@ send it for you with retry mechanism! by clicking **SEND AS QUEUED NOTIFICATION*
 If you want to send a message from your bot to some user, you need to link your user with the bot using the chats. but
 how can you know which chats belong to whom?
 
-In this demo, each user has unique random generated token. And the user must open his own link provided by this demo to
+In this demo, there are two ways:
+
+1. By [adding a chat](#add-chat): we filter the start messages by username, and link the chats by the username.
+2. By [the interaction with the bot](#interact-with-the-bot): each user has unique random generated token. And the user must open his own link provided by this demo to
 interact with the bot.
 
-After the interaction, the webhook (or getUpdates api) sends us each message including chat_id.
+After the interaction, the webhook (or getUpdates api) sends us each message including `chat.id`.
 
-We filter the message by `/start ${token}` and if it matches, we extract the token and chat_id, find the user with that token, and create a new chat record.
+We filter the message by `/start ${token}` and if it matches, we extract the token and chat_id, find the user with that
+token, and create a new chat record.
 
 Now we can use `chat_id` to send the user a message.
-
-This is it!
 
 #### Requirements
 
