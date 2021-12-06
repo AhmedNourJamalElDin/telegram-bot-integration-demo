@@ -1,5 +1,15 @@
 # Telegram Bot Integration Demo
 
+## What this demo is about
+
+Imagine you have an e-commerce app, and some users requests to receive the receipts via Telegram.
+
+But, of course, it is bad to do that manually and you want to automate the process, so you want to make integration with Telegram Bot API. However, there are some limitations in the Telegram Bot API 
+
+1. Telegram Bot API does not allow you to send messages to anyone directly otherwise the users will be spammed by random bots. so that your users must interact with the bots in order for them to receive messages from you via your bot.
+
+2. If the interaction is done, you can not easily know who is this user and how they will be linked together.
+
 ![Demo Image](demo-images/demo.png)
 
 This demo mainly provides 4 components:
@@ -81,11 +91,7 @@ This is it!
 #### Installation & First Time Running Locally
 
 1. Clone the project
-2. Ask for firebase json files:
-    1. Service account credentials for firebase adminsdk and place it in `/storage/firebase-adminsdk.json`
-    2. public credentials: to generate tokens and receive messages and place it
-       in `/resources/js/frontend/firebase-messaging.json`
-3. Run the following script
+2. Run the following script
 
 ```bash
 cp .env.example .env
