@@ -159,7 +159,7 @@ And if you want to send queued notifications, make sure you run
 with code coverage
 
 ```bash
-./vendor/bin/said test --coverage-html reports
+./vendor/bin/sail test --coverage-html reports
 ```
 
 ### CI / CD
