@@ -2,67 +2,82 @@
 
 namespace App\Services;
 
-use App\Exceptions\ChatAlreadyExists;
-use App\Exceptions\NoStartMessageFoundForToken;
 use App\Models\Chat;
-use Illuminate\Support\Str;
+use Error;
+use Exception;
+use Illuminate\Support\Collection;
 use Telegram\Bot\Laravel\Facades\Telegram;
 
 class TelegramBotInteractor
 {
+    private $updates;
+    private Collection $exceptions;
+    private ?Chat $chat = null;
+
+    public function __construct()
+    {
+        $this->exceptions = collect();
+    }
+
     public function interacted(): Chat
     {
-        $updates = Telegram::getUpdates();
+        $this->fetchUpdates()
+            ->interactedByUsername()
+            ->interactedByToken()
+            ->throwFirstExceptionIfNoChatCreated();
 
-        $expected_result = $this->findStartMessageForMyToken($updates);
+        return $this->chat;
+    }
 
-        if ($expected_result == null) {
-            throw new NoStartMessageFoundForToken(__('No message found from you!'));
+    private function throwFirstExceptionIfNoChatCreated(): self
+    {
+        if ($this->chat != null) {
+            return $this;
         }
 
-        $chat = $expected_result['message']['chat'];
-        $username = $chat['username'];
-        $chat_id = $chat['id'];
-
-        if ($this->chatExists($chat_id)) {
-            throw new ChatAlreadyExists(__(':username is already linked with Chat ID of :chat_id', ['username' => $username, 'chat_id' => $chat_id]));
+        if ($this->exceptions->isEmpty()) {
+            return $this;
         }
 
-        return $this->createChat($chat_id, $username);
+        throw $this->exceptions->first();
     }
 
-    private function findStartMessageForMyToken(array $updates)
+    private function interactedByToken(): self
     {
-        $token = $this->token();
-        foreach ($updates as $result) {
-            $text = Str::of($result['message']['text']);
-
-            if ($text->startsWith('/start') && $text->endsWith($token)) {
-                return $result;
-            }
+        if ($this->chat != null) {
+            return $this;
         }
+
+        try {
+            $token_interactor = new TokenTelegramBotInteractor();
+
+            $this->chat = $token_interactor->interacted($this->updates);
+        } catch (Exception $exception) {
+            $this->exceptions->add($exception);
+        }
+
+        return $this;
     }
 
-    public function token()
+    private function interactedByUsername(): self
     {
-        return my_telegram_token();
+        try {
+            $username_interactor = new UsernameTelegramBotInteractor();
+
+            $this->chat = $username_interactor->interacted($this->updates);
+
+        } catch (Error | Exception $exception) {
+            $this->exceptions->add($exception);
+        }
+
+
+        return $this;
     }
 
-    private function chatExists(mixed $chat_id): mixed
+    private function fetchUpdates(): self
     {
-        return auth()->user()
-            ->chats()
-            ->where('chat_id', $chat_id)
-            ->exists();
-    }
+        $this->updates = Telegram::getUpdates();
 
-    private function createChat(mixed $chat_id, mixed $username)
-    {
-        return auth()->user()
-            ->chats()
-            ->create([
-                'chat_id' => $chat_id,
-                'username' => $username,
-            ]);
+        return $this;
     }
 }

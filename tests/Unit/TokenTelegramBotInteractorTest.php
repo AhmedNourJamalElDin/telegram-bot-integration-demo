@@ -3,20 +3,18 @@
 namespace Tests\Unit;
 
 use App\Exceptions\ChatAlreadyExists;
-use App\Exceptions\NoFreeChatsForYourUsername;
 use App\Exceptions\NoStartMessageFoundForToken;
 use App\Models\Chat;
 use App\Models\User;
-use App\Services\TelegramBotInteractor;
+use App\Services\TokenTelegramBotInteractor;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Telegram\Bot\Laravel\Facades\Telegram;
 use Tests\TestCase;
 
-class TelegramBotInteractorTest extends TestCase
+class TokenTelegramBotInteractorTest extends TestCase
 {
     use RefreshDatabase;
 
-    private TelegramBotInteractor $interactor;
+    private TokenTelegramBotInteractor $interactor;
 
     public function test_newChat_created()
     {
@@ -35,17 +33,8 @@ class TelegramBotInteractorTest extends TestCase
                 ],
             ],
         ];
-        $this->mockGetUpdatesResponse($updates);
-
-        $this->interactor->interacted();
+        $this->interactor->interacted($updates);
         $this->assertDatabaseCount('chats', 1);
-    }
-
-    protected function mockGetUpdatesResponse($updates): void
-    {
-        Telegram::shouldReceive('getUpdates')
-            ->andReturn($updates)
-            ->once();
     }
 
     public function test_tokenMismatchesPattern_noChatsCreated()
@@ -61,10 +50,9 @@ class TelegramBotInteractorTest extends TestCase
                 ],
             ],
         ];
-        $this->mockGetUpdatesResponse($updates);
-        $this->expectException(NoFreeChatsForYourUsername::class);
+        $this->expectException(NoStartMessageFoundForToken::class);
 
-        $this->interactor->interacted();
+        $this->interactor->interacted($updates);
         $this->assertDatabaseCount('chats', 0);
     }
 
@@ -87,10 +75,9 @@ class TelegramBotInteractorTest extends TestCase
             ],
         ];
 
-        $this->mockGetUpdatesResponse($updates);
-        $this->expectException(NoFreeChatsForYourUsername::class);
+        $this->expectException(ChatAlreadyExists::class);
 
-        $this->interactor->interacted();
+        $this->interactor->interacted($updates);
         $this->assertDatabaseCount('chats', 1);
     }
 
@@ -99,6 +86,6 @@ class TelegramBotInteractorTest extends TestCase
         parent::setUp();
         $this->actingAs(User::factory()->createOne());
 
-        $this->interactor = new TelegramBotInteractor();
+        $this->interactor = new TokenTelegramBotInteractor();
     }
 }

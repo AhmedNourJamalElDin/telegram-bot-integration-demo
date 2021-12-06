@@ -65,7 +65,9 @@ class User extends Authenticatable
         parent::boot();
 
         static::creating(function ($user) {
-            $user->telegram_token = generate_unique_telegram_token();
+            if(!$user->telegram_token) {
+                $user->telegram_token = generate_unique_telegram_token();
+            }
         });
     }
 

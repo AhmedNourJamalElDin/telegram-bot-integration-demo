@@ -4,15 +4,15 @@ namespace Tests\Unit;
 
 use App\Models\Chat;
 use App\Models\User;
-use App\Services\TelegramBotWebHookHandler;
+use App\Services\TokenTelegramBotWebHookHandler;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-class TelegramBotWebHookHandlerTest extends TestCase
+class TokenTelegramBotWebHookHandlerTest extends TestCase
 {
     use RefreshDatabase;
 
-    private TelegramBotWebHookHandler $handler;
+    private TokenTelegramBotWebHookHandler $handler;
 
     public function test_newChat_created()
     {
@@ -31,7 +31,7 @@ class TelegramBotWebHookHandlerTest extends TestCase
                 ],
             ],
         ];
-        $this->handler->handler($updates);
+        $this->handler->handle($updates);
         $this->assertDatabaseCount('chats', 1);
     }
 
@@ -48,7 +48,7 @@ class TelegramBotWebHookHandlerTest extends TestCase
                 ],
             ],
         ];
-        $this->handler->handler($updates);
+        $this->handler->handle($updates);
         $this->assertDatabaseCount('chats', 0);
     }
 
@@ -65,7 +65,7 @@ class TelegramBotWebHookHandlerTest extends TestCase
                 ],
             ],
         ];
-        $this->handler->handler($updates);
+        $this->handler->handle($updates);
         $this->assertDatabaseCount('chats', 0);
     }
 
@@ -85,13 +85,13 @@ class TelegramBotWebHookHandlerTest extends TestCase
             ],
         ];
 
-        $this->handler->handler($updates);
+        $this->handler->handle($updates);
         $this->assertDatabaseCount('chats', 1);
     }
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->handler = new TelegramBotWebHookHandler();
+        $this->handler = new TokenTelegramBotWebHookHandler();
     }
 }

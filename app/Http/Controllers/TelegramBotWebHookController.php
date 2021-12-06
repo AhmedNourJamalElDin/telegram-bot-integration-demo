@@ -11,7 +11,7 @@ class TelegramBotWebHookController extends Controller
     {
         $updates = new UpdateObject(request()->all());
 
-        $handler->handler($updates);
+        $handler->handle($updates);
 
         return response()->json([]);
     }

@@ -10,6 +10,7 @@ class ChatsList extends Component
 {
     public $listeners = [
         'new-chat-linked' => 'loadChats',
+        'new-chat-created' => 'loadChats',
     ];
 
     public Collection $chats;

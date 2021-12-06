@@ -2,77 +2,59 @@
 
 namespace App\Services;
 
-use App\Models\Chat;
-use App\Models\User;
+use Exception;
 use Illuminate\Support\Collection;
 
 class TelegramBotWebHookHandler
 {
     private Collection $updates;
+    private Collection $exceptions;
 
-    public function handler($updates)
+    public function __construct()
+    {
+        $this->exceptions = collect();
+    }
+
+    public function handle($updates)
     {
         $this->begin()
             ->setUpdates($updates)
-            ->filterByMatcher()
-            ->filterByChatIdExistent()
-            ->filterAndAddUserId()
-            ->createChats();
+            ->byUsername()
+            ->byToken()
+            ->throwFirstException();
     }
 
-    private function createChats()
+    private function throwFirstException()
     {
-        Chat::query()
-            ->insert($this->updates->toArray());
+        if ($this->exceptions->isEmpty()) {
+            return;
+        }
+
+        throw $this->exceptions->first();
     }
 
-    private function filterAndAddUserId(): self
+    private function byToken(): self
     {
-        $extractor = new TokenExtractor();
+        $handler = new TokenTelegramBotWebHookHandler();
 
-        $chats_without_users_ids = $this->updates
-            ->pluck('message')
-            ->map(fn ($message) => [
-                'chat_id' => $message['chat']['id'],
-                'username' => $message['chat']['username'],
-                'token' => $extractor->extract($message['text']),
-            ]);
-
-        $users = User::query()
-            ->whereIn('telegram_token', $chats_without_users_ids->pluck('token'))
-            ->pluck('id', 'telegram_token');
-
-        $this->updates = $chats_without_users_ids->map(function ($chat) use ($users) {
-            $token = $chat['token'];
-
-            if (! $users->has($token)) {
-                return;
-            }
-            unset($chat['token']);
-
-            return array_merge($chat, [
-                'user_id' => $users[$token],
-            ]);
-        })->filter(fn ($item) => $item);
+        try {
+            $handler->handle($this->updates);
+        } catch (Exception $exception) {
+            $this->exceptions->add($exception);
+        }
 
         return $this;
     }
 
-    private function filterByChatIdExistent(): self
+    private function byUsername(): self
     {
-        $chats = Chat::query()
-            ->whereIn('chat_id', $this->updates->pluck('message.chat.id'))
-            ->pluck('chat_id');
+        $handler = new UsernameTelegramBotWebHookHandler();
 
-        $this->updates = $this->updates->filter(fn ($update) => ! $chats->contains($update['message']['chat']['id']));
-
-        return $this;
-    }
-
-    private function filterByMatcher(): self
-    {
-        $matcher = new StartMessageMatcher();
-        $this->updates = $this->updates->filter(fn ($update) => $matcher->match($update['message']['text']));
+        try {
+            $handler->handle($this->updates);
+        } catch (Exception $e) {
+            $this->exceptions->add($e);
+        }
 
         return $this;
     }
