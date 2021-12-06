@@ -10,30 +10,29 @@ Telegram Bot API. However, there are some limitations in the Telegram Bot API
 1. Telegram Bot API does not allow you to send messages to anyone directly otherwise the users will be spammed by random
    bots. so that your users must interact with the bots in order for them to receive messages from you via your bot.
 
-2. If the interaction is done, you can not easily know who is this user and how they will be linked together.
+2. If the interaction is done, you can not easily know who is this user and how he will be linked with your users in the database.
 
 ![Demo Image](demo-images/demo.png)
 
-This demo mainly provides 4 components:
+This demo mainly provides 5 components:
 
-#### Interact With The Bot
+#### 1. Interact With The Bot
 
 ![Interact With The Bot](demo-images/interact-with-the-bot.png)
 
-After clicking the **INTERACT** button, a new tab will open which will open telegram app. and the user must click the **
-/start** message at this point, otherwise this demo won't work.
+After clicking the **INTERACT** button, a new tab will open which will open telegram app. and the user must click the **/start** message at this point, otherwise this demo won't work.
 
 After that, the user may click **INTERACTED** button where the app can fetch the updates from telegram bot api, and link
 the chat with the current user.
 
-#### Telegram Webhook
+#### 2. Telegram Webhook
 
 Telegram bot api provides a webhook out of the box which sends the messages to the backend, and it is supported in this
 demo.
 
 We just use it to link the chats with the users and no more!
 
-#### Add Chat
+#### 3. Add Chat
 
 ![Add Chat](demo-images/add-chat.png)
 
@@ -42,7 +41,7 @@ You can add a chat to your linked chat by specifying your telegram username then
 P.S. you should send the bot the /start message as the messages are filtered and only /start message work in this demo,
 however, any message works if you remove the filters in the code.
 
-#### Linked Chats
+#### 4. Linked Chats
 
 ![Linked Chats](demo-images/linked-chats.png)
 
@@ -50,7 +49,7 @@ Here you will find all your linked chats, and of course, you can revoke one of t
 
 When sending a message, all the chats for the user will receive the same message.
 
-#### Send Message
+#### 5. Send Message
 
 ![Send Message](demo-images/send-message.png)
 
